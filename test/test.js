@@ -10,16 +10,16 @@ describe("Ship Power", () => {
 })
 
 describe("Number of modules", () => {
- it("There should be 2 modules", () => {
+ it("There should be 4 modules", () => {
    var count = app.countModules()
-   assert.equal(count, 2)
+   assert.equal(count, 4)
  })
 })
 
 describe("Number of essential modules", () => {
-  it("There should be 2 modules", () => {
+  it("There should be 4 modules", () => {
     var count = app.countEssential()
-    assert.equal(count, 2)
+    assert.equal(count, 4)
   })
  })
 
@@ -28,4 +28,10 @@ describe("Number of essential modules", () => {
     var index = app.findModuleIndex("life-support")
     assert.equal(index, 0)
   })
+ })
+
+ describe("Loaded communication module should be made essential", () => {
+   it("communication module should be essential", () => {
+     assert.equal(app.ship.modules[3].essential, true)
+   })
  })
