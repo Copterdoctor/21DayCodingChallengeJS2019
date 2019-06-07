@@ -61,6 +61,21 @@ var availableModules = [
   }
 ]
 
+// Functional available that provides a random number or undefined it seems
+function checkSignal() {
+  var randomNumber = Math.floor(Math.random() * (100 - 0 + 1)) + 0;
+  if (randomNumber%2 == 0){
+    return undefined
+  } else {
+    return randomNumber
+  }
+}
+
+
+// Broadcast function available that does something
+function broadcast() {
+  return null
+}
 
 ///////////////////////////////////////////
 /*
@@ -78,6 +93,8 @@ loadModule(navModule);
 resetLARRY();
 var commModule = findModuleIndex("communication");
 loadModule(commModule);
+setMessage(radio, navigation);
+activateBeacon(radio);
 
 function powerOn() {
   if (ship.powerOn === false) {
@@ -122,6 +139,107 @@ function resetLARRY() {
   }
 }
 
+function setMessage(radio, navigationInfo) {
+  radio.message = JSON.stringify(navigationInfo);
+}
+
+function activateBeacon(radio) {
+  radio.beacon = true;
+}
+
+function setFrequency() {
+  radio.frequency = (radio.range.low + radio.range.high) / 2;
+}
+
+function initialize() {
+  navigation.x = 0;
+  navigation.y = 0;
+  navigation.z = 0;
+}
+
+function calibrateX() {
+  var signal = checkSignal();
+  if (signal !== undefined) {
+    navigation.x = signal;
+  } else {
+    calibrateX();
+  }
+}
+
+function calibrateY() {
+  var signal = checkSignal();
+  if (signal !== undefined) {
+    navigation.y = signal;
+  } else {
+    calibrateY();
+  }
+}
+
+function calibrateZ() {
+  var signal = checkSignal();
+  if (signal !== undefined) {
+    navigation.z = signal;
+  } else {
+    calibrateZ();
+  }
+}
+
+function calibrate() {
+  calibrateX();
+  calibrateY();
+  calibrateZ();
+}
+
+//This function passes the test and is apperently the right answer. I don't like it.
+function setSpeed(speed) {
+  var speedInt = parseInt(speed);
+  if(speedInt >= 0) {
+   navigation.speed = speedInt; 
+  }
+}
+
+function activateAntenna() {
+  ship.antenna.active = true;
+}
+
+function sendBroadcast() {
+  for(let i = 0; i < 100; i++) {
+    broadcast();
+  }
+}
+
+function configureBroadcast() {
+  setFrequency();
+  activateAntenna();
+  sendBroadcast();
+}
+configureBroadcast();
+
+//Replace numbers with vowels in message
+function decodeMessage(message) {
+  message = message.replace(/[0-9]/g, function (m) {
+    return {
+      0 : "o",
+      1 : "i",
+      2 : "u",
+      3 : "e",
+      4 : "a",
+      5 : "y"
+    }[m];
+});
+return message
+}
+
+function returnToEarth() {
+  let rx = broadcast("x");
+  let ry = broadcast("y");
+  let rz = broadcast("z");
+  
+  navigation.x = parseInt(decodeMessage(rx), 16);
+  navigation.y = parseInt(decodeMessage(ry), 16);
+  navigation.z = parseInt(decodeMessage(rz), 16);
+}
+returnToEarth();
 
 module.exports = {
   navigation,
@@ -131,5 +249,12 @@ module.exports = {
   countModules,
   countEssential,
   findModuleIndex,
-  loadModule
+  loadModule,
+  setMessage,
+  activateBeacon,
+  setFrequency,
+  initialize,
+  calibrateX,
+  setSpeed,
+  decodeMessage
 }
